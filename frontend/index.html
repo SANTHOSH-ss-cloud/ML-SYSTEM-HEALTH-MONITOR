@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Health Monitor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-microchip logo-icon neon-text-cyan"></i>
+                <span class="neon-text-cyan">SHM-ULTRA</span>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-view="dashboard">
+                    <i class="fas fa-project-diagram"></i> Dashboard
+                </li>
+                <li data-view="charts">
+                    <i class="fas fa-wave-square"></i> Metrics & Analytics
+                </li>
+                <li data-view="anomalies">
+                    <i class="fas fa-radiation"></i> Anomaly Core
+                </li>
+                <li data-view="system">
+                    <i class="fas fa-terminal"></i> System Kernel
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot neon-bg-green pulse"></span>
+                    <span id="api-status">CORE: CONNECTED</span>
+                </div>
+                <button id="refresh-btn" class="btn-refresh">
+                    <i class="fas fa-bolt"></i> FORCE SYNC
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Header -->
+            <header class="main-header">
+                <h1 id="view-title" class="neon-text-magenta">Dashboard</h1>
+                <div class="last-updated neon-text-cyan">
+                    SYSTEM TIME: <span id="update-time">--:--:--</span>
+                </div>
+            </header>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view">
+                <!-- Health Score Hero -->
+                <div class="health-hero">
+                    <div class="score-container neon-border-green">
+                        <div class="score-circle">
+                            <span id="health-score" class="neon-text-green">--</span>
+                            <span class="score-label">System Stability</span>
+                        </div>
+                    </div>
+                    <div class="summary-cards">
+                        <div class="summary-card neon-border-cyan">
+                            <span class="label">CPU ENGINE</span>
+                            <span class="value neon-text-cyan" id="hero-cpu">--%</span>
+                            <div class="mini-bar"><div id="bar-cpu" class="fill neon-bg-cyan"></div></div>
+                        </div>
+                        <div class="summary-card neon-border-magenta">
+                            <span class="label">MEMORY BUFFER</span>
+                            <span class="value neon-text-magenta" id="hero-mem">--%</span>
+                            <div class="mini-bar"><div id="bar-mem" class="fill neon-bg-magenta"></div></div>
+                        </div>
+                        <div class="summary-card neon-border-yellow">
+                            <span class="label">STORAGE DRIVE</span>
+                            <span class="value neon-text-yellow" id="hero-disk">--%</span>
+                            <div class="mini-bar"><div id="bar-disk" class="fill neon-bg-yellow"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="card chart-card neon-border-blue">
+                        <h3><i class="fas fa-chart-area"></i> REAL-TIME TELEMETRY</h3>
+                        <canvas id="liveChart"></canvas>
+                    </div>
+                    <div class="card process-card neon-border-purple">
+                        <h3><i class="fas fa-tasks"></i> KERNEL PROCESSES</h3>
+                        <div class="table-container">
+                            <table id="process-table">
+                                <thead>
+                                    <tr>
+                                        <th>PID</th>
+                                        <th>PROCESS</th>
+                                        <th>LOAD%</th>
+                                        <th>MEM%</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="process-list">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts & Trends View -->
+            <div id="charts-view" class="view hidden">
+                <div class="metrics-grid">
+                    <div class="card full-width neon-border-cyan">
+                        <h3><i class="fas fa-history"></i> 24-HOUR LOAD PROFILE</h3>
+                        <canvas id="historyChart"></canvas>
+                    </div>
+                    <div class="card neon-border-green">
+                        <h3><i class="fas fa-network-wired"></i> NETWORK THROUGHPUT</h3>
+                        <div class="net-stats">
+                            <div class="net-stat">
+                                <i class="fas fa-upload neon-text-cyan"></i>
+                                <span>TX: <strong id="net-sent" class="neon-text-cyan">0 MB</strong></span>
+                            </div>
+                            <div class="net-stat">
+                                <i class="fas fa-download neon-text-magenta"></i>
+                                <span>RX: <strong id="net-recv" class="neon-text-magenta">0 MB</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card neon-border-magenta">
+                        <h3><i class="fas fa-crystal-ball"></i> ML TREND FORECAST</h3>
+                        <canvas id="predictionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Anomalies View -->
+            <div id="anomalies-view" class="view hidden">
+                <div class="card full-width neon-border-red">
+                    <h3><i class="fas fa-biohazard"></i> DETECTED ANOMALIES</h3>
+                    <div id="anomaly-list" class="anomaly-container">
+                        <div class="empty-state">SCANNING FOR SYSTEM THREATS...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info View -->
+            <div id="system-view" class="view hidden">
+                <div class="card full-width neon-border-blue">
+                    <h3><i class="fas fa-server"></i> KERNEL CONFIGURATION</h3>
+                    <div class="info-grid" id="system-info-grid">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
